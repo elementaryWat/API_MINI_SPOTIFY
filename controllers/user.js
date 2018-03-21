@@ -28,10 +28,38 @@ function registrarUsuario(req,res,next){
     }else{
         res.statusCode=500;
         res.setHeader("Content-Type","application/json")
-        res.json({created:false,error:"pw_required"});
+        res.json({created:false,error:"Debe ingresar la contrañse"});
     }
 }
-
-module.exports={
-    registrarUsuario
+function loginUsuario(req,res,next){
+    var emailU=req.body.email;
+    var passwordU=req.body.password;
+    User.findOne({email:emailU.toLowerCase()}).exec()
+    .then(user=>{
+        if (user){
+            bcrypt.compare(passwordU,user.password).then(equal=>{
+                if(equal){
+                    res.statusCode=200;
+                    res.setHeader("Content-Type","application/json")
+                    res.json({logged:true,user:user});
+                }else{
+                    res.statusCode=404;
+                    res.setHeader("Content-Type","application/json")
+                    res.json({logged:false,error:"Email y/o contraseña incorrecta"});
+                }
+            })
+        }else{
+            res.statusCode=404;
+            res.setHeader("Content-Type","application/json")
+            res.json({logged:false,error:"Email y/o contraseña incorrecta"});
+        }
+    }).catch(err=>{
+        res.statusCode=500;
+        res.setHeader("Content-Type","application/json")
+        res.json({logged:false,error:err});
+    })
 }
+module.exports={
+    registrarUsuario,
+    loginUsuario
+};

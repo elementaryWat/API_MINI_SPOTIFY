@@ -8,8 +8,7 @@ router.route("/")
   res.send('Ruta de prueba');
 })
 
-router.route("/register")
-.post(userController.registrarUsuario);
-
+router.post("/register",userController.registrarUsuario);
+router.post("/login",userController.loginUsuario);
 
 module.exports = router;
