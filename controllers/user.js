@@ -1,5 +1,6 @@
 const bcrypt=require("bcrypt");
 const User=require("../models/user");
+const jwt=require("../services/jwt");
 
 function registrarUsuario(req,res,next){
     var newUser=new User();
@@ -39,9 +40,11 @@ function loginUsuario(req,res,next){
         if (user){
             bcrypt.compare(passwordU,user.password).then(equal=>{
                 if(equal){
-                    res.statusCode=200;
-                    res.setHeader("Content-Type","application/json")
-                    res.json({logged:true,user:user});
+                    if(req.body.gethash){
+                        res.status(200).send({logged:true,token:jwt.createToken(user)})
+                    }else{
+                        res.status(200).send({logged:true,user:user})
+                    }
                 }else{
                     res.statusCode=404;
                     res.setHeader("Content-Type","application/json")
@@ -59,7 +62,23 @@ function loginUsuario(req,res,next){
         res.json({logged:false,error:err});
     })
 }
+function updateUser(req,res){
+    var iduser=req.params.userId;
+    var update=req.body;
+    console.log(update);
+    User.findByIdAndUpdate(iduser,{$set:update},{new:true})
+    .then(userUpdated=>{
+        if (userUpdated){
+            res.status(200).send({updated:true,user:userUpdated});
+        }else{
+            res.status(500).send({updated:false,error:"No se ha podido actualizar el usuario"});
+        }
+    }).catch(err=>{
+        res.status(500).send({updated:false,error:err});
+    })
+}
 module.exports={
     registrarUsuario,
-    loginUsuario
+    loginUsuario,
+    updateUser
 };

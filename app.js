@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose=require("mongoose");
+mongoose.Promise=require("bluebird");
 
 var url="mongodb://localhost:27017/curso_mean";
 mongoose.connect(url).then((db)=>{
