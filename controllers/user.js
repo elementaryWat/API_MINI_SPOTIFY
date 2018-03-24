@@ -1,6 +1,8 @@
 const bcrypt=require("bcrypt");
 const User=require("../models/user");
 const jwt=require("../services/jwt");
+const fs=require("fs");
+const path=require("path");
 
 function registrarUsuario(req,res,next){
     var newUser=new User();
@@ -77,8 +79,48 @@ function updateUser(req,res){
         res.status(500).send({updated:false,error:err});
     })
 }
+function updateUserImage(req,res){
+    if(req.files){
+        var image_path=req.files.image.path;
+        var split_path=image_path.split("\\");
+        var image_name=split_path[3];
+        var ext_split=image_name.split("\.");
+        var ext_image=ext_split[1];
+        if(ext_image=="jpg" || ext_image=="png" || ext_image=="gif"){
+            User.findByIdAndUpdate(req.params.userId,{$set:{image:image_name}},{new:true})
+            .then(userWithImageUpdated=>{
+                if (userWithImageUpdated){
+                    res.status(200).send({uploaded:true,updated:true,user:userWithImageUpdated});
+                }else{
+                    res.status(500).send({uploaded:true,updated:false,error:"No se ha podido actualizar el usuario"});
+                }
+            })
+            .catch(err=>{
+                res.status(500).send({uploaded:false,error:err});
+            })
+        }else{
+            res.status(500).send({uploaded:false,error:'Extension de archivo no valida'});
+        }
+    }else{
+        res.status(500).send({uploaded:false,error:'No se ha podido subir ningun archivo'});
+    }
+}
+function getImageFile(req, res){
+    var imageFile=req.params.imageFile;
+    var imagePath="./uploads/users/images/"+imageFile;
+    fs.exists(imagePath,(exists)=>{
+        if(exists){
+            res.sendFile(path.resolve(imagePath));
+        }else{
+            res.status(404).send({founded:false,error:'No se ha encontrar la imagen'});
+        }
+    })
+
+}
 module.exports={
     registrarUsuario,
     loginUsuario,
-    updateUser
+    updateUser,
+    updateUserImage,
+    getImageFile
 };
