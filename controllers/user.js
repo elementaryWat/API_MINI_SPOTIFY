@@ -1,11 +1,11 @@
 const bcrypt=require("bcrypt");
-const User=require("../models/user");
+const Users=require("../models/user");
 const jwt=require("../services/jwt");
 const fs=require("fs");
 const path=require("path");
 
 function registrarUsuario(req,res,next){
-    var newUser=new User();
+    var newUser=new Users();
     if (req.body.password && req.body.password!=""){
         newUser.name=req.body.name;
         newUser.surname=req.body.surname;
@@ -37,7 +37,7 @@ function registrarUsuario(req,res,next){
 function loginUsuario(req,res,next){
     var emailU=req.body.email;
     var passwordU=req.body.password;
-    User.findOne({email:emailU.toLowerCase()}).exec()
+    Users.findOne({email:emailU.toLowerCase()}).exec()
     .then(user=>{
         if (user){
             bcrypt.compare(passwordU,user.password).then(equal=>{
@@ -68,7 +68,7 @@ function updateUser(req,res){
     var iduser=req.params.userId;
     var update=req.body;
     console.log(update);
-    User.findByIdAndUpdate(iduser,{$set:update},{new:true})
+    Users.findByIdAndUpdate(iduser,{$set:update},{new:true})
     .then(userUpdated=>{
         if (userUpdated){
             res.status(200).send({updated:true,user:userUpdated});
@@ -87,7 +87,7 @@ function updateUserImage(req,res){
         var ext_split=image_name.split("\.");
         var ext_image=ext_split[1];
         if(ext_image=="jpg" || ext_image=="png" || ext_image=="gif"){
-            User.findByIdAndUpdate(req.params.userId,{$set:{image:image_name}},{new:true})
+            Users.findByIdAndUpdate(req.params.userId,{$set:{image:image_name}},{new:true})
             .then(userWithImageUpdated=>{
                 if (userWithImageUpdated){
                     res.status(200).send({uploaded:true,updated:true,user:userWithImageUpdated});
