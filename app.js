@@ -29,8 +29,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/user', userRouter);
-app.use('/api/artist', artistRouter);
-app.use('/api/album', albumRouter);
+app.use('/api/artists', artistRouter);
+app.use('/api/albums', albumRouter);
 app.use('/', indexRouter);
 
 // catch 404 and forward to error handler

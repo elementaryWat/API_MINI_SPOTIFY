@@ -28,7 +28,13 @@ function createAlbum(req,res){
     })
 }
 function getAlbums(req,res){
-    Albums.find().exec()
+    var artistId=req.params.artistId;
+    if (artistId){
+        var albums=Albums.find({artist:artistId}).sort('year');
+    }else{
+        var albums=Albums.find().sort('title');
+    }
+    albums.populate({path:'artist'}).exec()
     .then(albums=>{
         res.status(200).send({albums}); 
     })
