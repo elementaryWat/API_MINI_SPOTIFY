@@ -13,6 +13,7 @@ mongoose.connect(url).then((db)=>{
 
 var userRouter = require('./routes/user');
 var artistRouter = require('./routes/artist');
+var albumRouter = require('./routes/album');
 var indexRouter = require('./routes/index');
 
 var app = express();
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/user', userRouter);
 app.use('/api/artist', artistRouter);
+app.use('/api/album', albumRouter);
 app.use('/', indexRouter);
 
 // catch 404 and forward to error handler

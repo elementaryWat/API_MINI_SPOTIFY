@@ -1,6 +1,6 @@
 const mongoose=require("mongoose");
 const Schema=mongoose.Schema;
-
+const songSchemma=require("./song");
 const albumSchema=new Schema({
     title:{
         type:String,
@@ -28,4 +28,9 @@ const albumSchema=new Schema({
 },{
     timestamps:true
 });
+albumSchema.pre("remove",function(next){
+    songSchemma.remove({album:this._id}).exec();
+    console.log("Se borraron todas las canciones del album");
+    next();
+})
 module.exports=mongoose.model("Album",albumSchema);
