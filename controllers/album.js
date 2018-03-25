@@ -2,7 +2,7 @@ const Albums=require("../models/album");
 
 function getAlbum(req,res){
     var albumId=req.params.albumId;
-    Albums.findById(albumId)
+    Albums.findById(albumId).populate({path:"artist"}).exec()
     .then(album=>{
         if(album){
             res.status(200).send({founded:true, album})    
