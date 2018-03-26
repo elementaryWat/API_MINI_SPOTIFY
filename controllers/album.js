@@ -57,6 +57,32 @@ function updateAlbum(req,res){
         res.status(500).send({updated:false,error});                    
     })
 }
+function updateImageAlbum(req,res){
+    if(req.files){
+        var albumId=req.params.albumId;
+        var imagePath=req.files.imageAlbum.path;
+        var splitPath=imagePath.split("\\");
+        var imageName=splitPath[3];
+
+        var nameSplit=imageName.split('\.');
+        var extImage=nameSplit[1];
+        if(extImage=="jpg" || extImage=="png" || extImage=="gif"){
+            Albums.findByIdAndUpdate(albumId,{$set:{image:imageName}},{new:true})
+            .then(albumWithImageUpdated=>{
+                if(albumWithImageUpdated){
+                    res.status(200).send({updated:true,album:albumWithImageUpdated});
+                }else{
+                    res.status(404).send({updated:false,error:"No se ha encontrado el album"});
+                }                                     
+            })
+            .catch(error=>{
+                res.status(500).send({updated:false,error});
+            });
+        }
+    }else{
+        res.status(500).send({updated:false,error:"Archivo no subido correctamente"});
+    }
+}
 function deleteAlbum(req,res){
     var albumId=req.params.albumId;
     Albums.findByIdAndRemove(albumId)
@@ -76,5 +102,6 @@ module.exports={
     createAlbum,
     getAlbums,
     updateAlbum,
+    updateImageAlbum,
     deleteAlbum
 }

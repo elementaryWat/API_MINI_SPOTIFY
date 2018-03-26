@@ -80,30 +80,26 @@ function updateUser(req,res){
     })
 }
 function updateUserImage(req,res){
-    if(req.files){
-        var image_path=req.files.image.path;
-        var split_path=image_path.split("\\");
-        var image_name=split_path[3];
-        var ext_split=image_name.split("\.");
-        var ext_image=ext_split[1];
-        if(ext_image=="jpg" || ext_image=="png" || ext_image=="gif"){
-            Users.findByIdAndUpdate(req.params.userId,{$set:{image:image_name}},{new:true})
-            .then(userWithImageUpdated=>{
-                if (userWithImageUpdated){
-                    res.status(200).send({uploaded:true,updated:true,user:userWithImageUpdated});
-                }else{
-                    res.status(500).send({uploaded:true,updated:false,error:"No se ha podido actualizar el usuario"});
-                }
-            })
-            .catch(err=>{
-                res.status(500).send({uploaded:false,error:err});
-            })
+    if (!req.file) {
+    console.log("No file received");
+    return res.send({
+      uploaded: false
+    });
+
+  } else {
+    console.log('file received',req.file);
+    Users.findByIdAndUpdate(req.params.userId)
+    .then(userWithImageUpdated=>{
+        if(userWithImageUpdated){
+            res.status(200).send({updated:true,user:userWithImageUpdated});
         }else{
-            res.status(500).send({uploaded:false,error:'Extension de archivo no valida'});
+            res.status(200).send({updated:false});            
         }
-    }else{
-        res.status(500).send({uploaded:false,error:'No se ha podido subir ningun archivo'});
-    }
+    })
+    .catch(error=>{
+        res.status(200).send({updated:false,error});        
+    })
+  }
 }
 function getImageFile(req, res){
     var imageFile=req.params.imageFile;

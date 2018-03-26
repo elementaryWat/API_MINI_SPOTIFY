@@ -2,8 +2,22 @@ var express = require('express');
 var routerUser = express.Router();
 const userController=require("../controllers/user");
 const md_auth=require("../middlewares/authenticated");
-const multipart=require("connect-multiparty");
-const md_upload=multipart({uploadDir:"./uploads/users/images"});
+const multer=require("multer");
+const crypto=require("crypto");
+const path=require("path");
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, __dirname+'/../uploads/users/images')
+  },
+  filename: function (req, file, cb) {
+    crypto.pseudoRandomBytes(16, function(err, raw) {
+      if (err) return cb(err);
+    
+      cb(null, raw.toString('hex') + path.extname(file.originalname));
+    });
+  }
+})
+const upload=multer({storage});
 
 /* GET users listing. */
 routerUser.route("/")
@@ -16,6 +30,6 @@ routerUser.post("/pruebaAuth",md_auth.ensureAuth,(req,res,next)=>{
 routerUser.post("/register",userController.registrarUsuario);
 routerUser.post("/login",userController.loginUsuario);
 routerUser.put("/update/:userId",md_auth.ensureAuth,userController.updateUser);
-routerUser.post("/updateUserImage/:userId",[md_auth.ensureAuth,md_upload],userController.updateUserImage);
+routerUser.post("/updateUserImage/:userId",upload.single('avatar'),userController.updateUserImage);
 routerUser.get("/getImage/:imageFile",userController.getImageFile);
 module.exports = routerUser;
