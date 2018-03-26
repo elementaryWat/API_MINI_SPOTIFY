@@ -88,7 +88,7 @@ function updateUserImage(req,res){
 
   } else {
     console.log('file received',req.file);
-    Users.findByIdAndUpdate(req.params.userId)
+    Users.findByIdAndUpdate(req.params.userId,{$set:{image:req.file.filename}},{new:true})
     .then(userWithImageUpdated=>{
         if(userWithImageUpdated){
             res.status(200).send({updated:true,user:userWithImageUpdated});

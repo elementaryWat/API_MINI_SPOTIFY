@@ -64,32 +64,26 @@ function updateArtist(req,res){
     })
 }
 function uploadImageArtist(req,res){
-    if(req.files){
-        var artistId=req.params.artistId;
-        var imagePath=req.files.imageArtist.path;
-        var pathSplit=imagePath.split("\\");
-        console.log(pathSplit);
-        var imageName=pathSplit[3];
-        var splitName=imageName.split("\.");
-        var ext=splitName[1];
-        if (ext=="jpg" || ext=="png" || ext=="gif"){
-            Artists.findByIdAndUpdate(artistId,{$set:{image:imageName}},{new:true})
-            .then(artistWithImageUpdated=>{
-                if(artistWithImageUpdated){
-                    res.status(200).send({updated:true,artist:artistWithImageUpdated})    
-                }else{
-                    res.status(404).send({updated:false,error:"Artista no encontrado"})    
-                }
-            })
-            .catch(err=>{
-                res.status(500).send({updated:false,error:err});                
-            })
-        }else{
-            res.status(500).send({updated:false,error:"Extension no soportada"});
-        }
-    }else{
-        res.status(500).send({updated:false,error:"Archivo no subido correctamente"})
-    }
+    if (!req.file) {
+        console.log("No file received");
+        return res.send({
+          uploaded: false
+        });
+    
+      } else {
+        console.log('file received',req.file);
+        Artists.findByIdAndUpdate(req.params.artistId,{$set:{image:req.file.filename}},{new:true})
+        .then(artistWithImageUpdated=>{
+            if(artistWithImageUpdated){
+                res.status(200).send({updated:true,artist:artistWithImageUpdated});
+            }else{
+                res.status(200).send({updated:false});            
+            }
+        })
+        .catch(error=>{
+            res.status(200).send({updated:false,error});        
+        })
+      }
 }
 function getImageArtist(req,res){
     var imageName=req.params.imageName;

@@ -58,30 +58,26 @@ function updateAlbum(req,res){
     })
 }
 function updateImageAlbum(req,res){
-    if(req.files){
-        var albumId=req.params.albumId;
-        var imagePath=req.files.imageAlbum.path;
-        var splitPath=imagePath.split("\\");
-        var imageName=splitPath[3];
-
-        var nameSplit=imageName.split('\.');
-        var extImage=nameSplit[1];
-        if(extImage=="jpg" || extImage=="png" || extImage=="gif"){
-            Albums.findByIdAndUpdate(albumId,{$set:{image:imageName}},{new:true})
-            .then(albumWithImageUpdated=>{
-                if(albumWithImageUpdated){
-                    res.status(200).send({updated:true,album:albumWithImageUpdated});
-                }else{
-                    res.status(404).send({updated:false,error:"No se ha encontrado el album"});
-                }                                     
-            })
-            .catch(error=>{
-                res.status(500).send({updated:false,error});
-            });
-        }
-    }else{
-        res.status(500).send({updated:false,error:"Archivo no subido correctamente"});
-    }
+    if (!req.file) {
+        console.log("No file received");
+        return res.send({
+          uploaded: false
+        });
+    
+      } else {
+        console.log('file received',req.file);
+        Albums.findByIdAndUpdate(req.params.albumId,{$set:{image:req.file.filename}},{new:true})
+        .then(albumWithImageUpdated=>{
+            if(albumWithImageUpdated){
+                res.status(200).send({updated:true,album:albumWithImageUpdated});
+            }else{
+                res.status(200).send({updated:false});            
+            }
+        })
+        .catch(error=>{
+            res.status(200).send({updated:false,error});        
+        })
+      }
 }
 function deleteAlbum(req,res){
     var albumId=req.params.albumId;
