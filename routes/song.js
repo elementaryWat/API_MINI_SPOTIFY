@@ -5,7 +5,7 @@ const crypto=require("crypto");
 const path=require("path");
 var storageAudio = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, __dirname+'/../uploads/songs/songs')
+    cb(null, __dirname+'/../uploads/songs')
   },
   filename: function (req, file, cb) {
     crypto.pseudoRandomBytes(16, function(err, raw) {
