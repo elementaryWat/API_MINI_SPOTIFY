@@ -1,4 +1,6 @@
 const Albums=require("../models/album");
+const path=require("path");
+const fs=require("fs");
 
 function getAlbum(req,res){
     var albumId=req.params.albumId;
@@ -79,6 +81,17 @@ function updateImageAlbum(req,res){
         })
       }
 }
+function getImageAlbum(req,res){
+    var imageAlbum=req.params.imageAlbum;
+    var dir = "./uploads/albums/images/"+imageAlbum;
+    fs.exists(dir,(exists)=>{
+        if(exists){
+            return res.status(200).sendFile(path.resolve(dir));
+        }else{
+            return res.status(200).send({founded:false});
+        }
+    });
+}
 function deleteAlbum(req,res){
     var albumId=req.params.albumId;
     Albums.findByIdAndRemove(albumId)
@@ -99,5 +112,6 @@ module.exports={
     getAlbums,
     updateAlbum,
     updateImageAlbum,
+    getImageAlbum,
     deleteAlbum
 }
