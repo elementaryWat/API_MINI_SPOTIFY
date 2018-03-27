@@ -22,6 +22,7 @@ songRouter.get("/album/:albumId",songController.getSongs);
 songRouter.get("/all",songController.getSongs);
 songRouter.post("/create",uploadAudio.single("avatar"),songController.createSong);
 songRouter.put("/update/:songId",songController.updateSong);
+songRouter.get("/getAudioFile/:audioName",songController.getAudioSong);
 songRouter.delete("/delete/:songId",songController.deleteSong);
 
 module.exports=songRouter;

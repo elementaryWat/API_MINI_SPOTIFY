@@ -83,6 +83,17 @@ function updateSong(req,res){
         res.status(500).send({updated:false,error})        
     })
 }
+function getAudioSong(req,res){
+    var audioName=req.params.audioName;
+    var audioPath="./uploads/songs/"+audioName;
+    fs.exists(audioPath,(exists)=>{
+        if(exists){
+            res.status(200).sendFile(path.resolve(audioPath));
+        }else{
+            res.status(404).send({founded:false,error:"Audio no encontrado"});            
+        }
+    })
+}
 function deleteSong(req,res){
     var songId=req.params.songId;
     Songs.findByIdAndRemove(songId)
@@ -108,6 +119,7 @@ module.exports={
     getSong,
     getSongs,
     updateSong,
+    getAudioSong,
     createSong,
     deleteSong
 }
