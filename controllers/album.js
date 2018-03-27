@@ -31,10 +31,13 @@ function createAlbum(req,res){
 }
 function getAlbums(req,res){
     var artistId=req.params.artistId;
+    var error;
     if (artistId){
         var albums=Albums.find({artist:artistId}).sort('year');
+        error="No hay albumes de este artista";
     }else{
         var albums=Albums.find().sort('title');
+        error="No hay ningun album";
     }
     albums.populate({path:'artist'}).exec()
     .then(albums=>{

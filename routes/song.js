@@ -17,7 +17,11 @@ var storageAudio = multer.diskStorage({
 })
 const uploadAudio=multer({storage:storageAudio});
 
-songRouter.get("/",songController.getSong);
+songRouter.get("/song/:songId",songController.getSong);
+songRouter.get("/album/:albumId",songController.getSongs);
+songRouter.get("/all",songController.getSongs);
 songRouter.post("/create",uploadAudio.single("avatar"),songController.createSong);
+songRouter.put("/update/:songId",songController.updateSong);
+songRouter.delete("/delete/:songId",songController.deleteSong);
 
 module.exports=songRouter;
