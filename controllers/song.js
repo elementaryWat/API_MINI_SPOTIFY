@@ -1,4 +1,5 @@
 const Songs=require("../models/song");
+const mp3Duration=require("mp3-duration");
 function getSong(req,res){
     res.status(200).send({founded:true});
 }
@@ -6,7 +7,12 @@ function createSong(req,res){
     if(!req.file){
         return res.status(500).send({uploaded:false});
     }else{
-        res.status(200).send({song:req.file});
+        mp3Duration(req.file.path,(err,duration)=>{
+            if(err){
+                return res.status(500).send({error:"Error al leer el archivo .mp3"})
+            }
+            res.status(200).send({duration});            
+        })
         /* Songs.create(req.body)
         .then(newSong=>{
             if(newSong){
