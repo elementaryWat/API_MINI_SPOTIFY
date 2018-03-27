@@ -30,6 +30,6 @@ routerUser.post("/pruebaAuth",md_auth.ensureAuth,(req,res,next)=>{
 routerUser.post("/register",userController.registrarUsuario);
 routerUser.post("/login",userController.loginUsuario);
 routerUser.put("/update/:userId",md_auth.ensureAuth,userController.updateUser);
-routerUser.post("/updateUserImage/:userId",upload.single('avatar'),userController.updateUserImage);
-routerUser.get("/getImage/:imageFile",userController.getImageFile);
+routerUser.post("/updateUserImage/:userId",[upload.single('avatar'),md_auth.ensureAuth],userController.updateUserImage);
+routerUser.get("/getImage/:imageFile",md_auth.ensureAuth,userController.getImageFile);
 module.exports = routerUser;

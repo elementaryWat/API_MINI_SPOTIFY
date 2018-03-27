@@ -1,5 +1,6 @@
 const albumRouter=require("express").Router();
 const albumController=require("../controllers/album");
+const md_auth=require("../middlewares/authenticated");
 
 const multer=require("multer");
 const crypto=require("crypto");
@@ -18,12 +19,12 @@ var storage = multer.diskStorage({
 })
 const upload=multer({storage});
 
-albumRouter.get("/album/:albumId",albumController.getAlbum);
-albumRouter.post("/create",albumController.createAlbum);
-albumRouter.get("/artist/:artistId",albumController.getAlbums);
-albumRouter.get("/all",albumController.getAlbums);
-albumRouter.put("/update/:albumId",albumController.updateAlbum);
-albumRouter.delete("/delete/:albumId",albumController.deleteAlbum);
-albumRouter.post("/uploadImageAlbum/:albumId",upload.single("avatar"),albumController.updateImageAlbum);
+albumRouter.get("/album/:albumId",md_auth.ensureAuth,albumController.getAlbum);
+albumRouter.post("/create",md_auth.ensureAuth,albumController.createAlbum);
+albumRouter.get("/artist/:artistId",md_auth.ensureAuth,albumController.getAlbums);
+albumRouter.get("/all",md_auth.ensureAuth,albumController.getAlbums);
+albumRouter.put("/update/:albumId",md_auth.ensureAuth,albumController.updateAlbum);
+albumRouter.delete("/delete/:albumId",md_auth.ensureAuth,albumController.deleteAlbum);
+albumRouter.post("/uploadImageAlbum/:albumId",[upload.single("avatar"),md_auth.ensureAuth],albumController.updateImageAlbum);
 
 module.exports=albumRouter;
