@@ -112,7 +112,14 @@ function deleteAlbum(req,res){
     Albums.findByIdAndRemove(albumId)
     .then(albumRemoved=>{
         if(albumRemoved){
-            res.status(200).send({deleted:true,album:albumRemoved});                        
+            var pathImageRemoved="./uploads/albums/images/"+albumRemoved.image;
+            
+            fs.unlink(pathImageRemoved, (err) => {
+                if (err){
+                    return res.status(200).send({deleted:true,fileDeleted:false,error:err})
+                }
+                res.status(200).send({deleted:true,fileDeleted:true,album:albumRemoved})
+              });                         
         }else{
             res.status(404).send({deleted:false,error:"No se ha encontrado el album"});                        
         }

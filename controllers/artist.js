@@ -119,7 +119,14 @@ function deleteArtist(req,res){
     Artists.findByIdAndRemove(artistId)
     .then(artistDeleted=>{
         if(artistDeleted){
-            res.status(200).send({deleted:true,artist:artistDeleted})
+            var pathImageRemoved="./uploads/artists/images/"+artistDeleted.image;
+            
+            fs.unlink(pathImageRemoved, (err) => {
+                if (err){
+                    return res.status(200).send({deleted:true,fileDeleted:false,error:err})
+                }
+                res.status(200).send({deleted:true,fileDeleted:true,artist:artistDeleted})
+              });  
         }else{
             res.status(404).send({deleted:false,error})
         }
