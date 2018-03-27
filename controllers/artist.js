@@ -40,11 +40,15 @@ function getArtists(req,res){
 }
 function createArtist(req,res){
     Artists.create(req.body)
-    .then(artist=>{
-        res.status(200).send({artistCreated:artist})
+    .then(newArtist=>{
+        if(artist){
+            res.status(200).send({created:true,artist:newArtist})
+        }else{
+            res.status(500).send({created:false,error:"No se pudo crear el Artista"})
+        }
     })
     .catch(err=>{
-        res.status(500).send({error:err});
+        res.status(500).send({created:false,error:err});
     })
 }
 function updateArtist(req,res){
@@ -86,7 +90,7 @@ function uploadImageArtist(req,res){
       }
 }
 function getImageArtist(req,res){
-    var imageName=req.params.imageName;
+    var imageName=req.params.imageArtist;
     var dir="./uploads/artists/images/"+imageName;
     fs.exists(dir,(exists)=>{
         if (exists){

@@ -102,7 +102,7 @@ function updateUserImage(req,res){
   }
 }
 function getImageFile(req, res){
-    var imageFile=req.params.imageFile;
+    var imageFile=req.params.imageUser;
     var imagePath="./uploads/users/images/"+imageFile;
     fs.exists(imagePath,(exists)=>{
         if(exists){

@@ -31,5 +31,5 @@ routerUser.post("/register",userController.registrarUsuario);
 routerUser.post("/login",userController.loginUsuario);
 routerUser.put("/update/:userId",md_auth.ensureAuth,userController.updateUser);
 routerUser.post("/updateUserImage/:userId",[upload.single('avatar'),md_auth.ensureAuth],userController.updateUserImage);
-routerUser.get("/getImage/:imageFile",md_auth.ensureAuth,userController.getImageFile);
+routerUser.get("/getImageUser/:imageUser",md_auth.ensureAuth,userController.getImageFile);
 module.exports = routerUser;
