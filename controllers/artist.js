@@ -67,7 +67,7 @@ function updateArtist(req,res){
         res.status(500).send({updated:false,error:err})
     })
 }
-function uploadImageArtist(req,res){
+function updateImageArtist(req,res){
     if (!req.file) {
         console.log("No file received");
         return res.send({
@@ -104,7 +104,7 @@ function uploadImageArtist(req,res){
       }
 }
 function getImageArtist(req,res){
-    var imageName=req.params.imageArtist;
+    var imageName=req.params.artistImage;
     var dir="./uploads/artists/images/"+imageName;
     fs.exists(dir,(exists)=>{
         if (exists){
@@ -133,7 +133,7 @@ module.exports={
     createArtist,
     getArtists,
     updateArtist,
-    uploadImageArtist,
+    updateImageArtist,
     getImageArtist,
     deleteArtist
 }

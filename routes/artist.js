@@ -24,7 +24,7 @@ routerArtist.post("/create",mdAuth.ensureAuth,ArtistController.createArtist);
 routerArtist.get('/list/:page?',mdAuth.ensureAuth,ArtistController.getArtists);
 routerArtist.put('/update/:artistId',mdAuth.ensureAuth,ArtistController.updateArtist);
 routerArtist.delete('/delete/:artistId',mdAuth.ensureAuth,ArtistController.deleteArtist);
-routerArtist.post('/uploadImageArtist/:artistId',[mdAuth.ensureAuth,upload.single("avatar")],ArtistController.uploadImageArtist);
-routerArtist.get('/getImageArtist/:imageArtist',mdAuth.ensureAuth,ArtistController.getImageArtist);
+routerArtist.post('/uploadArtistImage/:artistId',[mdAuth.ensureAuth,upload.single("avatar")],ArtistController.updateImageArtist);
+routerArtist.get('/getArtistImage/:artistImage',mdAuth.ensureAuth,ArtistController.getImageArtist);
 
 module.exports=routerArtist

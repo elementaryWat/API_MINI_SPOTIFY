@@ -25,7 +25,7 @@ albumRouter.get("/artist/:artistId",md_auth.ensureAuth,albumController.getAlbums
 albumRouter.get("/all",md_auth.ensureAuth,albumController.getAlbums);
 albumRouter.put("/update/:albumId",md_auth.ensureAuth,albumController.updateAlbum);
 albumRouter.delete("/delete/:albumId",md_auth.ensureAuth,albumController.deleteAlbum);
-albumRouter.post("/uploadImageAlbum/:albumId",[upload.single("avatar"),md_auth.ensureAuth],albumController.updateImageAlbum);
-albumRouter.get("/getImageAlbum/:imageAlbum",md_auth.ensureAuth,albumController.getImageAlbum);
+albumRouter.post("/uploadAlbumImage/:albumId",[upload.single("avatar"),md_auth.ensureAuth],albumController.updateImageAlbum);
+albumRouter.get("/getAlbumImage/:albumImage",md_auth.ensureAuth,albumController.getImageAlbum);
 
 module.exports=albumRouter;

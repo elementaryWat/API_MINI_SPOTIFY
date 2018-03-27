@@ -71,10 +71,22 @@ function updateImageAlbum(req,res){
     
       } else {
         console.log('file received',req.file);
-        Albums.findByIdAndUpdate(req.params.albumId,{$set:{image:req.file.filename}},{new:true})
-        .then(albumWithImageUpdated=>{
-            if(albumWithImageUpdated){
-                res.status(200).send({updated:true,album:albumWithImageUpdated});
+        Albums.findByIdAndUpdate(req.params.albumId,{$set:{image:req.file.filename}})
+        .then(albumBeforeUpdate=>{
+            if(albumBeforeUpdate){
+                var pathOldImage="./uploads/albums/images/"+albumBeforeUpdate.image;
+                fs.exists(pathOldImage,(exists)=>{
+                    if(exists){
+                        fs.unlink(pathOldImage,(err)=>{
+                            if(err){
+                                return res.status(500).send({updated:true,artistBeforeUpdate,info:"No se pudo eliminar la imagen anterior"});                                        
+                            }
+                            res.status(200).send({updated:true,albumBeforeUpdate,info:"Se elimino la imagen anterior"}); 
+                        })
+                    }else{
+                        res.status(200).send({updated:true,albumBeforeUpdate,info:"No se encontro la imagen anterior"});                         
+                    }
+                })
             }else{
                 res.status(200).send({updated:false});            
             }
@@ -85,7 +97,7 @@ function updateImageAlbum(req,res){
       }
 }
 function getImageAlbum(req,res){
-    var imageAlbum=req.params.imageAlbum;
+    var imageAlbum=req.params.albumImage;
     var dir = "./uploads/albums/images/"+imageAlbum;
     fs.exists(dir,(exists)=>{
         if(exists){

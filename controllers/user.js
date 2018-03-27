@@ -88,10 +88,22 @@ function updateUserImage(req,res){
 
   } else {
     console.log('file received',req.file);
-    Users.findByIdAndUpdate(req.params.userId,{$set:{image:req.file.filename}},{new:true})
-    .then(userWithImageUpdated=>{
-        if(userWithImageUpdated){
-            res.status(200).send({updated:true,user:userWithImageUpdated});
+    Users.findByIdAndUpdate(req.params.userId,{$set:{image:req.file.filename}})
+    .then(userBeforeUpdate=>{
+        if(userBeforeUpdate){
+            var pathOldImage="./uploads/users/images/"+userBeforeUpdate.image;
+                fs.exists(pathOldImage,(exists)=>{
+                    if(exists){
+                        fs.unlink(pathOldImage,(err)=>{
+                            if(err){
+                                return res.status(500).send({updated:true,userBeforeUpdate,info:"No se pudo eliminar la imagen anterior"});                                        
+                            }
+                            res.status(200).send({updated:true,userBeforeUpdate,info:"Se elimino la imagen anterior"}); 
+                        })
+                    }else{
+                        res.status(200).send({updated:true,userBeforeUpdate,info:"No se encontro la imagen anterior"});                         
+                    }
+                })
         }else{
             res.status(200).send({updated:false});            
         }
@@ -102,7 +114,7 @@ function updateUserImage(req,res){
   }
 }
 function getImageFile(req, res){
-    var imageFile=req.params.imageUser;
+    var imageFile=req.params.userImage;
     var imagePath="./uploads/users/images/"+imageFile;
     fs.exists(imagePath,(exists)=>{
         if(exists){
