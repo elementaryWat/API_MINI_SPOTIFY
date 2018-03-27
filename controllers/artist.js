@@ -76,12 +76,26 @@ function uploadImageArtist(req,res){
     
       } else {
         console.log('file received',req.file);
-        Artists.findByIdAndUpdate(req.params.artistId,{$set:{image:req.file.filename}},{new:true})
-        .then(artistWithImageUpdated=>{
-            if(artistWithImageUpdated){
-                res.status(200).send({updated:true,artist:artistWithImageUpdated});
+        var artistId=req.params.artistId;
+
+        Artists.findByIdAndUpdate(artistId,{$set:{image:req.file.filename}})
+        .then(artistBeforeUpdate=>{ 
+            if(artistBeforeUpdate){
+                var pathOldImage="./uploads/artists/images/"+artistBeforeUpdate.image;
+                fs.exists(pathOldImage,(exists)=>{
+                    if(exists){
+                        fs.unlink(pathOldImage,(err)=>{
+                            if(err){
+                                return res.status(500).send({updated:true,artistBeforeUpdate,info:"No se pudo eliminar la imagen anterior"});                                        
+                            }
+                            res.status(200).send({updated:true,artistBeforeUpdate,info:"Se elimino la imagen anterior"}); 
+                        })
+                    }else{
+                        res.status(200).send({updated:true,artistBeforeUpdate,info:"No se encontro la imagen anterior"});                         
+                    }
+                })
             }else{
-                res.status(200).send({updated:false});            
+                res.status(404).send({updated:false,error:"No se encontro el artista"});            
             }
         })
         .catch(error=>{
