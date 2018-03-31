@@ -4,7 +4,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose=require("mongoose");
+var cors=require("cors");
 mongoose.Promise=require("bluebird");
+
 
 var url="mongodb://localhost:27017/curso_mean";
 mongoose.connect(url).then((db)=>{
@@ -22,6 +24,9 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
+//Permite usar la API desde otros dominios
+app.use(cors());
 
 app.use(logger('dev'));
 app.use(express.json());

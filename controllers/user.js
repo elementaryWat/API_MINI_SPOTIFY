@@ -27,7 +27,7 @@ function registrarUsuario(req,res,next){
             res.statusCode=500;
             res.setHeader("Content-Type","application/json")
             res.json({created:false,error:err});
-        })  
+        })
     }else{
         res.statusCode=500;
         res.setHeader("Content-Type","application/json")
@@ -64,6 +64,21 @@ function loginUsuario(req,res,next){
         res.json({logged:false,error:err});
     })
 }
+function buscarUsuarioConEmail(req,res){
+  var email=req.body.email;
+  Users.find({email:email}).exec()
+  .then(userConEmail=>{
+    // console.log(userConEmail);
+    if(userConEmail.length>0){
+      res.status(200).send({founded:true,user:userConEmail})
+    }else{
+      res.status(200).send({founded:false,error:"No se ha encontrado un usuario con este email"})
+    }
+  })
+  .catch(error=>{
+    res.status(500).send({founded:false,error})
+  })
+}
 function updateUser(req,res){
     var iduser=req.params.userId;
     var update=req.body;
@@ -96,20 +111,20 @@ function updateUserImage(req,res){
                     if(exists){
                         fs.unlink(pathOldImage,(err)=>{
                             if(err){
-                                return res.status(500).send({updated:true,userBeforeUpdate,info:"No se pudo eliminar la imagen anterior"});                                        
+                                return res.status(500).send({updated:true,userBeforeUpdate,info:"No se pudo eliminar la imagen anterior"});
                             }
-                            res.status(200).send({updated:true,userBeforeUpdate,info:"Se elimino la imagen anterior"}); 
+                            res.status(200).send({updated:true,userBeforeUpdate,info:"Se elimino la imagen anterior"});
                         })
                     }else{
-                        res.status(200).send({updated:true,userBeforeUpdate,info:"No se encontro la imagen anterior"});                         
+                        res.status(200).send({updated:true,userBeforeUpdate,info:"No se encontro la imagen anterior"});
                     }
                 })
         }else{
-            res.status(200).send({updated:false});            
+            res.status(200).send({updated:false});
         }
     })
     .catch(error=>{
-        res.status(200).send({updated:false,error});        
+        res.status(200).send({updated:false,error});
     })
   }
 }
@@ -128,6 +143,7 @@ function getImageFile(req, res){
 module.exports={
     registrarUsuario,
     loginUsuario,
+    buscarUsuarioConEmail,
     updateUser,
     updateUserImage,
     getImageFile

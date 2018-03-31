@@ -12,7 +12,7 @@ var storage = multer.diskStorage({
   filename: function (req, file, cb) {
     crypto.pseudoRandomBytes(16, function(err, raw) {
       if (err) return cb(err);
-    
+
       cb(null, raw.toString('hex') + path.extname(file.originalname));
     });
   }
@@ -29,6 +29,7 @@ routerUser.post("/pruebaAuth",md_auth.ensureAuth,(req,res,next)=>{
 });
 routerUser.post("/register",userController.registrarUsuario);
 routerUser.post("/login",userController.loginUsuario);
+routerUser.post("/exist",userController.buscarUsuarioConEmail);
 routerUser.put("/update/:userId",md_auth.ensureAuth,userController.updateUser);
 routerUser.post("/uploadUserImage/:userId",[upload.single('avatar'),md_auth.ensureAuth],userController.updateUserImage);
 routerUser.get("/getUserImage/:userImage",md_auth.ensureAuth,userController.getImageFile);

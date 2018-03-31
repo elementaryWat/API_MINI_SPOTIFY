@@ -1,4 +1,5 @@
 const songRouter=require("express").Router();
+const md_auth=require("../middlewares/authenticated");
 const songController=require("../controllers/song");
 const multer=require("multer");
 const crypto=require("crypto");
@@ -17,12 +18,12 @@ var storageAudio = multer.diskStorage({
 })
 const uploadAudio=multer({storage:storageAudio});
 
-songRouter.get("/song/:songId",songController.getSong);
-songRouter.get("/album/:albumId",songController.getSongs);
-songRouter.get("/all",songController.getSongs);
-songRouter.post("/create",uploadAudio.single("avatar"),songController.createSong);
-songRouter.put("/update/:songId",songController.updateSong);
-songRouter.get("/getAudioFile/:audioName",songController.getAudioSong);
-songRouter.delete("/delete/:songId",songController.deleteSong);
+songRouter.get("/song/:songId",md_auth.ensureAuth,songController.getSong);
+songRouter.get("/album/:albumId",md_auth.ensureAuth,songController.getSongs);
+songRouter.get("/all",md_auth.ensureAuth,songController.getSongs);
+songRouter.post("/create",[md_auth.ensureAuth,uploadAudio.single("avatar")],songController.createSong);
+songRouter.put("/update/:songId",md_auth.ensureAuth,songController.updateSong);
+songRouter.get("/getAudioFile/:audioName",md_auth.ensureAuth,songController.getAudioSong);
+songRouter.delete("/delete/:songId",md_auth.ensureAuth,songController.deleteSong);
 
 module.exports=songRouter;
