@@ -21,17 +21,17 @@ function registrarUsuario(req,res,next){
            }).catch(err=>{
                 res.statusCode=500;
                 res.setHeader("Content-Type","application/json")
-                res.json({created:false,error:err});
+                res.json({created:false,message:"Ha ocurrido un error al guardar en la base de datos",error:err});
            })
         }).catch(err=>{
             res.statusCode=500;
             res.setHeader("Content-Type","application/json")
-            res.json({created:false,error:err});
+            res.json({created:false,message:"Ha ocurrido un error con la contraseña",error:err});
         })
     }else{
         res.statusCode=500;
         res.setHeader("Content-Type","application/json")
-        res.json({created:false,error:"Debe ingresar la contrañse"});
+        res.json({created:false,message:"Debe ingresar la contraseña"});
     }
 }
 function loginUsuario(req,res,next){
@@ -43,40 +43,40 @@ function loginUsuario(req,res,next){
             bcrypt.compare(passwordU,user.password).then(equal=>{
                 if(equal){
                     if(req.body.gethash){
-                        res.status(200).send({logged:true,token:jwt.createToken(user)})
+                        res.status(200).send({logged:true,token:jwt.createToken(user),user})
                     }else{
                         res.status(200).send({logged:true,user:user})
                     }
                 }else{
                     res.statusCode=404;
                     res.setHeader("Content-Type","application/json")
-                    res.json({logged:false,error:"Email y/o contraseña incorrecta"});
+                    res.json({logged:false,message:"Email y/o contraseña incorrecta"});
                 }
             })
         }else{
             res.statusCode=404;
             res.setHeader("Content-Type","application/json")
-            res.json({logged:false,error:"Email y/o contraseña incorrecta"});
+            res.json({logged:false,message:"Email y/o contraseña incorrecta"});
         }
     }).catch(err=>{
         res.statusCode=500;
         res.setHeader("Content-Type","application/json")
-        res.json({logged:false,error:err});
+        res.json({logged:false,message:"Error en el servidor",error:err});
     })
 }
 function buscarUsuarioConEmail(req,res){
   var email=req.body.email;
   Users.find({email:email}).exec()
-  .then(userConEmail=>{
+  .then(usersConEmail=>{
     // console.log(userConEmail);
-    if(userConEmail.length>0){
-      res.status(200).send({founded:true,user:userConEmail})
+    if(usersConEmail.length>0){
+      res.status(200).send({founded:true,user:usersConEmail})
     }else{
-      res.status(200).send({founded:false,error:"No se ha encontrado un usuario con este email"})
+      res.status(200).send({founded:false,message:"No se ha encontrado un usuario con este email"})
     }
   })
   .catch(error=>{
-    res.status(500).send({founded:false,error})
+    res.status(500).send({founded:false,message:"Error en el servidor",error})
   })
 }
 function updateUser(req,res){
@@ -88,10 +88,10 @@ function updateUser(req,res){
         if (userUpdated){
             res.status(200).send({updated:true,user:userUpdated});
         }else{
-            res.status(500).send({updated:false,error:"No se ha podido actualizar el usuario"});
+            res.status(404).send({updated:false,message:"No se ha podido encontrado el usuario"});
         }
     }).catch(err=>{
-        res.status(500).send({updated:false,error:err});
+        res.status(500).send({updated:false,message:"Error en el servidor",error:err});
     })
 }
 function updateUserImage(req,res){
@@ -111,20 +111,20 @@ function updateUserImage(req,res){
                     if(exists){
                         fs.unlink(pathOldImage,(err)=>{
                             if(err){
-                                return res.status(500).send({updated:true,userBeforeUpdate,info:"No se pudo eliminar la imagen anterior"});
+                                return res.status(200).send({updated:true,userBeforeUpdate,message:"No se pudo eliminar la imagen anterior"});
                             }
-                            res.status(200).send({updated:true,userBeforeUpdate,info:"Se elimino la imagen anterior"});
+                            res.status(200).send({updated:true,userBeforeUpdate,message:"Se elimino la imagen anterior"});
                         })
                     }else{
-                        res.status(200).send({updated:true,userBeforeUpdate,info:"No se encontro la imagen anterior"});
+                        res.status(200).send({updated:true,userBeforeUpdate,message:"No se encontro la imagen anterior"});
                     }
                 })
         }else{
-            res.status(200).send({updated:false});
+            res.status(404).send({updated:false,founded:false,message:"No se encontro el usuario"});
         }
     })
     .catch(error=>{
-        res.status(200).send({updated:false,error});
+        res.status(500).send({updated:false,message:"Error en el servidor",error});
     })
   }
 }
@@ -135,7 +135,7 @@ function getImageFile(req, res){
         if(exists){
             res.sendFile(path.resolve(imagePath));
         }else{
-            res.status(404).send({founded:false,error:'No se ha encontrar la imagen'});
+            res.status(404).send({founded:false,message:'No se ha encontrar la imagen'});
         }
     })
 
