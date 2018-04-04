@@ -6,33 +6,60 @@ const path=require("path");
 
 function registrarUsuario(req,res,next){
     var newUser=new Users();
-    if (req.body.password && req.body.password!=""){
-        newUser.name=req.body.name;
-        newUser.surname=req.body.surname;
-        newUser.email=req.body.email;
-        newUser.role=req.body.role;
-        newUser.image=req.body.image;
-        bcrypt.hash(req.body.password,10).then(passHashed=>{
-            newUser.password=passHashed;
-           newUser.save().then(user=>{
-                res.statusCode=200;
-                res.setHeader("Content-Type","application/json")
-                res.json({created:true,user:user});
-           }).catch(err=>{
-                res.statusCode=500;
-                res.setHeader("Content-Type","application/json")
-                res.json({created:false,message:"Ha ocurrido un error al guardar en la base de datos",error:err});
-           })
-        }).catch(err=>{
+    newUser.name=req.body.name;
+    newUser.surname=req.body.surname;
+    newUser.email=req.body.email;
+    newUser.role=req.body.role;
+    newUser.image=req.body.image;
+    bcrypt.hash(req.body.password,10).then(passHashed=>{
+        newUser.password=passHashed;
+       newUser.save().then(user=>{
+            res.statusCode=200;
+            res.setHeader("Content-Type","application/json")
+            res.json({created:true,user:user});
+       }).catch(err=>{
             res.statusCode=500;
             res.setHeader("Content-Type","application/json")
-            res.json({created:false,message:"Ha ocurrido un error con la contraseña",error:err});
-        })
-    }else{
+            res.json({created:false,message:"Ha ocurrido un error al guardar en la base de datos",error:err});
+       })
+    }).catch(err=>{
         res.statusCode=500;
         res.setHeader("Content-Type","application/json")
-        res.json({created:false,message:"Debe ingresar la contraseña"});
-    }
+        res.json({created:false,message:"Ha ocurrido un error con la contraseña",error:err});
+    })
+}
+function passwordEqual(req,res){
+  var userId=req.params.userId;
+  var oldPassword=req.body.oldPassword;
+  var inputOldPassword=req.body.inputOldPassword;
+  bcrypt.compare(inputOldPassword,oldPassword).then(equal=>{
+      if(equal){
+          res.status(200).send({equal:true})
+      }else{
+          res.status(200).send({equal:false})
+      }
+  })
+}
+function actualizarPassword(req,res){
+  var userId=req.params.userId;
+  var newPassword=req.body.password;
+  bcrypt.hash(newPassword,10).then(passHashed=>{
+     Users.findByIdAndUpdate(userId,{$set:{password:passHashed}},{new:true}).then(userWithNewPassword=>{
+         if (userWithNewPassword){
+             res.status(200).send({updated:true,user:userWithNewPassword});
+         }else{
+             res.status(404).send({updated:false,message:"No se ha podido encontrado el usuario"});
+         }
+     }).catch(err=>{
+          res.statusCode=500;
+          res.setHeader("Content-Type","application/json")
+          res.json({created:false,message:"Ha ocurrido un error al guardar en la base de datos",error:err});
+     })
+  }).catch(err=>{
+      res.statusCode=500;
+      res.setHeader("Content-Type","application/json")
+      res.json({created:false,message:"Ha ocurrido un error con la contraseña",error:err});
+  })
 }
 function loginUsuario(req,res,next){
     var emailU=req.body.email;
@@ -111,12 +138,12 @@ function updateUserImage(req,res){
                     if(exists){
                         fs.unlink(pathOldImage,(err)=>{
                             if(err){
-                                return res.status(200).send({updated:true,userBeforeUpdate,message:"No se pudo eliminar la imagen anterior"});
+                                return res.status(200).send({updated:true,image:req.file.filename,userBeforeUpdate,message:"No se pudo eliminar la imagen anterior"});
                             }
-                            res.status(200).send({updated:true,userBeforeUpdate,message:"Se elimino la imagen anterior"});
+                            res.status(200).send({updated:true,image:req.file.filename,userBeforeUpdate,message:"Se elimino la imagen anterior"});
                         })
                     }else{
-                        res.status(200).send({updated:true,userBeforeUpdate,message:"No se encontro la imagen anterior"});
+                        res.status(200).send({updated:true,image:req.file.filename,userBeforeUpdate,message:"No se encontro la imagen anterior"});
                     }
                 })
         }else{
@@ -129,7 +156,7 @@ function updateUserImage(req,res){
   }
 }
 function getImageFile(req, res){
-    var imageFile=req.params.userImage;
+    var imageFile=req.params.imageFile;
     var imagePath="./uploads/users/images/"+imageFile;
     fs.exists(imagePath,(exists)=>{
         if(exists){
@@ -144,7 +171,9 @@ module.exports={
     registrarUsuario,
     loginUsuario,
     buscarUsuarioConEmail,
+    passwordEqual,
     updateUser,
+    actualizarPassword,
     updateUserImage,
     getImageFile
 };
