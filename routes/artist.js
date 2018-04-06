@@ -10,7 +10,7 @@ var storage = multer.diskStorage({
   filename: function (req, file, cb) {
     crypto.pseudoRandomBytes(16, function(err, raw) {
       if (err) return cb(err);
-    
+
       cb(null, raw.toString('hex') + path.extname(file.originalname));
     });
   }
@@ -20,11 +20,11 @@ const upload=multer({storage});
 const mdAuth=require("../middlewares/authenticated");
 
 routerArtist.get("/artist/:artistId",mdAuth.ensureAuth,ArtistController.getArtista);
-routerArtist.post("/create",mdAuth.ensureAuth,ArtistController.createArtist);
-routerArtist.get('/list/:page?',mdAuth.ensureAuth,ArtistController.getArtists);
-routerArtist.put('/update/:artistId',mdAuth.ensureAuth,ArtistController.updateArtist);
-routerArtist.delete('/delete/:artistId',mdAuth.ensureAuth,ArtistController.deleteArtist);
+routerArtist.post("/",mdAuth.ensureAuth,ArtistController.createArtist);
+routerArtist.post('/list/:page',mdAuth.ensureAuth,ArtistController.getArtists);
+routerArtist.put('/:artistId',mdAuth.ensureAuth,ArtistController.updateArtist);
+routerArtist.delete('/:artistId',mdAuth.ensureAuth,ArtistController.deleteArtist);
 routerArtist.post('/uploadArtistImage/:artistId',[mdAuth.ensureAuth,upload.single("avatar")],ArtistController.updateImageArtist);
-routerArtist.get('/getArtistImage/:artistImage',mdAuth.ensureAuth,ArtistController.getImageArtist);
+routerArtist.get('/getArtistImage/:artistImage',ArtistController.getImageArtist);
 
 module.exports=routerArtist

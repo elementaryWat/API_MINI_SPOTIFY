@@ -19,9 +19,10 @@ function getArtista(req,res){
 }
 function getArtists(req,res){
     var page=(req.params.page)?req.params.page:1;
-    console.log(page);
-    var artistsPerPage=3;
-    Artists.find({}).sort('name').paginate(page,artistsPerPage,(err,artists,totalDocs)=>{
+    var sortBy=req.body.sortBy;
+    var order=(req.body.order=='desc')?'-':'';
+    var artistsPerPage=6;
+    Artists.find({}).sort(order+sortBy).paginate(page,artistsPerPage,(err,artists,totalDocs)=>{
         if (err){
             res.status(500).send({err,message:"Ocurrio un error al buscar en la base de datos"})
         }else{
@@ -41,14 +42,15 @@ function getArtists(req,res){
 function createArtist(req,res){
     Artists.create(req.body)
     .then(newArtist=>{
-        if(artist){
+        if(newArtist){
             res.status(200).send({created:true,artist:newArtist})
         }else{
-            res.status(500).send({created:false,error:"No se pudo crear el Artista"})
+            res.status(500).send({created:false,message:"No se pudo crear el Artista"})
         }
     })
     .catch(err=>{
-        res.status(500).send({created:false,error:err});
+        res.status(500).send({created:false,error:err,message:"Ocurrio un error al crear el artista"});
+        console.log(err);
     })
 }
 function updateArtist(req,res){
@@ -60,46 +62,50 @@ function updateArtist(req,res){
         if(artistUpdated){
             res.status(200).send({updated:true,artist:artistUpdated})
         }else{
-            res.status(404).send({updated:false})
+            res.status(404).send({updated:false,message:"No se pudo encontrar el artista"})
         }
     })
     .catch(err=>{
-        res.status(500).send({updated:false,error:err})
+        res.status(500).send({updated:false,message:"No se pudo actualizar el artista",error:err})
     })
 }
 function updateImageArtist(req,res){
     if (!req.file) {
         console.log("No file received");
         return res.send({
-          uploaded: false
+          uploaded: false, message:"No se pudo subir el archivo de imagen"
         });
-    
+
       } else {
         console.log('file received',req.file);
         var artistId=req.params.artistId;
 
         Artists.findByIdAndUpdate(artistId,{$set:{image:req.file.filename}})
-        .then(artistBeforeUpdate=>{ 
+        .then(artistBeforeUpdate=>{
             if(artistBeforeUpdate){
-                var pathOldImage="./uploads/artists/images/"+artistBeforeUpdate.image;
-                fs.exists(pathOldImage,(exists)=>{
-                    if(exists){
-                        fs.unlink(pathOldImage,(err)=>{
-                            if(err){
-                                return res.status(500).send({updated:true,artistBeforeUpdate,info:"No se pudo eliminar la imagen anterior"});                                        
-                            }
-                            res.status(200).send({updated:true,artistBeforeUpdate,info:"Se elimino la imagen anterior"}); 
-                        })
-                    }else{
-                        res.status(200).send({updated:true,artistBeforeUpdate,info:"No se encontro la imagen anterior"});                         
-                    }
-                })
+                if(artistBeforeUpdate.image=="default.png"){
+                  res.status(200).send({updated:true,artistBeforeUpdate,image:req.file.filename,message:"No se elimino la imagen anterior"});
+                }else{
+                  var pathOldImage="./uploads/artists/images/"+artistBeforeUpdate.image;
+                  fs.exists(pathOldImage,(exists)=>{
+                      if(exists){
+                          fs.unlink(pathOldImage,(err)=>{
+                              if(err){
+                                  return res.status(500).send({updated:true,artistBeforeUpdate,image:req.file.filename,message:"No se pudo eliminar la imagen anterior",error:err});
+                              }
+                              res.status(200).send({updated:true,artistBeforeUpdate,image:req.file.filename,message:"Se elimino la imagen anterior"});
+                          })
+                      }else{
+                          res.status(200).send({updated:true,artistBeforeUpdate,image:req.file.filename,message:"No se encontro la imagen anterior"});
+                      }
+                  })
+                }
             }else{
-                res.status(404).send({updated:false,error:"No se encontro el artista"});            
+                res.status(404).send({updated:false,error:"No se encontro el artista"});
             }
         })
         .catch(error=>{
-            res.status(200).send({updated:false,error});        
+            res.status(200).send({updated:false,error,message:"No se pudo actualizar el artista"});
         })
       }
 }
@@ -110,7 +116,7 @@ function getImageArtist(req,res){
         if (exists){
             res.status(200).sendFile(path.resolve(dir));
         }else{
-            res.status(404).send({founded:false,error:"Imagen no encontrada"})                
+            res.status(404).send({founded:false,message:"Imagen no encontrada"})
         }
     });
 }
@@ -119,20 +125,24 @@ function deleteArtist(req,res){
     Artists.findByIdAndRemove(artistId)
     .then(artistDeleted=>{
         if(artistDeleted){
-            var pathImageRemoved="./uploads/artists/images/"+artistDeleted.image;
-            
-            fs.unlink(pathImageRemoved, (err) => {
-                if (err){
-                    return res.status(200).send({deleted:true,fileDeleted:false,error:err})
-                }
-                res.status(200).send({deleted:true,fileDeleted:true,artist:artistDeleted})
-              });  
+            if(artistDeleted.image=="default.png"){
+              res.status(200).send({deleted:true,fileDeleted:false,artist:artistDeleted})
+            }else{
+              var pathImageRemoved="./uploads/artists/images/"+artistDeleted.image;
+
+              fs.unlink(pathImageRemoved, (err) => {
+                  if (err){
+                      return res.status(200).send({deleted:true,fileDeleted:false,message:"No se elimino la imagen del artista",error:err})
+                  }
+                  res.status(200).send({deleted:true,fileDeleted:true,artist:artistDeleted})
+                });
+            }
         }else{
-            res.status(404).send({deleted:false,error})
+            res.status(404).send({deleted:false,error,message:"No se pudo encontrar el artista"})
         }
     })
     .catch(error=>{
-        res.status(404).send({deleted:false,error:"Artista no encontrado"})
+        res.status(404).send({deleted:false,message:"Artista no encontrado"})
     })
 }
 module.exports={

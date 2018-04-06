@@ -133,6 +133,9 @@ function updateUserImage(req,res){
     Users.findByIdAndUpdate(req.params.userId,{$set:{image:req.file.filename}})
     .then(userBeforeUpdate=>{
         if(userBeforeUpdate){
+          if(userBeforeUpdate.image=='default.png'){
+            res.status(200).send({updated:true,image:req.file.filename,userBeforeUpdate,message:"No se elimino la imagen anterior"});
+          }else{
             var pathOldImage="./uploads/users/images/"+userBeforeUpdate.image;
                 fs.exists(pathOldImage,(exists)=>{
                     if(exists){
@@ -146,6 +149,8 @@ function updateUserImage(req,res){
                         res.status(200).send({updated:true,image:req.file.filename,userBeforeUpdate,message:"No se encontro la imagen anterior"});
                     }
                 })
+          }
+
         }else{
             res.status(404).send({updated:false,founded:false,message:"No se encontro el usuario"});
         }
