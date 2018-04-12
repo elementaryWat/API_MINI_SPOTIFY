@@ -9,11 +9,11 @@ function getSong(req,res){
         if(song){
             res.status(200).send({founded:true,song})
         }else{
-            res.status(404).send({founded:false,error:"No se ha encontrado a la cancion"})            
+            res.status(404).send({founded:false,error:"No se ha encontrado a la cancion"})
         }
     })
     .catch(error=>{
-        res.status(500).send({founded:false,error})        
+        res.status(500).send({founded:false,error})
     })
 
 }
@@ -37,7 +37,7 @@ function getSongs(req,res){
         }
     })
     .catch(error=>{
-        res.status(500).send({founded:false,error})        
+        res.status(500).send({founded:false,error})
     })
 }
 function createSong(req,res){
@@ -46,14 +46,14 @@ function createSong(req,res){
     }else{
         var Song=new Songs();
         Song.number=req.body.number;
-        Song.name=path.basename(req.file.originalname,path.extname(req.file.originalname));
+        Song.name=req.body.name;
         Song.album=req.body.albumId;
         Song.file=req.file.filename;
         mp3Duration(req.file.path,(err,duration)=>{
             if(err){
                 return res.status(500).send({error:"Error al leer el archivo .mp3"})
             }
-            Song.duration=duration;   
+            Song.duration=duration;
             Song.save()
             .then(newSong=>{
                 if(newSong){
@@ -63,8 +63,8 @@ function createSong(req,res){
                 }
             })
             .catch(error=>{
-                res.status(500).send({created:false,error})                
-            })        
+                res.status(500).send({created:false,error})
+            })
         })
     }
 }
@@ -74,13 +74,13 @@ function updateSong(req,res){
     Songs.findByIdAndUpdate(songId,{$set:update},{new:true})
     .then(songUpdated=>{
         if(songUpdated){
-            res.status(200).send({updated:true,song:songUpdated})            
+            res.status(200).send({updated:true,song:songUpdated})
         }else{
             res.status(404).send({updated:false,error:"No se ha encontrado la cancion"})
         }
     })
     .catch(error=>{
-        res.status(500).send({updated:false,error})        
+        res.status(500).send({updated:false,error})
     })
 }
 function getAudioSong(req,res){
@@ -90,7 +90,7 @@ function getAudioSong(req,res){
         if(exists){
             res.status(200).sendFile(path.resolve(audioPath));
         }else{
-            res.status(404).send({founded:false,error:"Audio no encontrado"});            
+            res.status(404).send({founded:false,error:"Audio no encontrado"});
         }
     })
 }
@@ -98,21 +98,21 @@ function deleteSong(req,res){
     var songId=req.params.songId;
     Songs.findByIdAndRemove(songId)
     .then(songRemoved=>{
-        if(songRemoved){   
+        if(songRemoved){
             var pathSongRemoved="./uploads/songs/"+songRemoved.file;
-            
+
             fs.unlink(pathSongRemoved, (err) => {
                 if (err){
                     return res.status(200).send({deleted:true,fileDeleted:false,error:err})
                 }
                 res.status(200).send({deleted:true,fileDeleted:true,song:songRemoved})
-              });          
+              });
         }else{
-            res.status(404).send({deleted:false,error:"No se encontro la cancion"})                    
+            res.status(404).send({deleted:false,error:"No se encontro la cancion"})
         }
     })
     .catch(error=>{
-        res.status(500).send({deleted:false,error})                
+        res.status(500).send({deleted:false,error})
     })
 }
 module.exports={

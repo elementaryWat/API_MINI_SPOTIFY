@@ -7,13 +7,13 @@ function getAlbum(req,res){
     Albums.findById(albumId).populate({path:"artist"}).exec()
     .then(album=>{
         if(album){
-            res.status(200).send({founded:true, album})    
+            res.status(200).send({founded:true, album})
         }else{
-            res.status(404).send({founded:false, album:null})                
+            res.status(404).send({founded:false, album:null})
         }
     })
     .catch(error=>{
-        res.status(500).send({error})            
+        res.status(500).send({error})
     })
 }
 function createAlbum(req,res){
@@ -22,11 +22,11 @@ function createAlbum(req,res){
         if(albumCreated){
             res.status(200).send({created:true,album:albumCreated});
         }else{
-            res.status(500).send({created:false,error:"No se ha podido crear el album en la base de datos"});            
+            res.status(500).send({created:false,message:"No se ha podido crear el album en la base de datos"});
         }
     })
     .catch(error=>{
-        res.status(500).send({created:true,error});        
+        res.status(500).send({created:true,error});
     })
 }
 function getAlbums(req,res){
@@ -36,15 +36,15 @@ function getAlbums(req,res){
         var albums=Albums.find({artist:artistId}).sort('year');
         error="No hay albumes de este artista";
     }else{
-        var albums=Albums.find().sort('title');
+        var albums=Albums.find().sort('title').populate({path:'artist'});
         error="No hay ningun album";
     }
-    albums.populate({path:'artist'}).exec()
+    albums.exec()
     .then(albums=>{
-        res.status(200).send({albums}); 
+        res.status(200).send({albums});
     })
     .catch(error=>{
-        res.status(500).send({error}); 
+        res.status(500).send({error});
     })
 }
 function updateAlbum(req,res){
@@ -53,13 +53,13 @@ function updateAlbum(req,res){
     Albums.findByIdAndUpdate(albumId,{$set:update},{new:true})
     .then(albumUpdated=>{
         if (albumUpdated){
-            res.status(200).send({updated:true,album:albumUpdated});            
+            res.status(200).send({updated:true,album:albumUpdated});
         }else{
-            res.status(404).send({updated:false,error:"No se ha encontrado el album"});                        
+            res.status(404).send({updated:false,error:"No se ha encontrado el album"});
         }
     })
     .catch(error=>{
-        res.status(500).send({updated:false,error});                    
+        res.status(500).send({updated:false,error});
     })
 }
 function updateImageAlbum(req,res){
@@ -68,31 +68,35 @@ function updateImageAlbum(req,res){
         return res.send({
           uploaded: false
         });
-    
+
       } else {
         console.log('file received',req.file);
         Albums.findByIdAndUpdate(req.params.albumId,{$set:{image:req.file.filename}})
         .then(albumBeforeUpdate=>{
             if(albumBeforeUpdate){
-                var pathOldImage="./uploads/albums/images/"+albumBeforeUpdate.image;
-                fs.exists(pathOldImage,(exists)=>{
-                    if(exists){
-                        fs.unlink(pathOldImage,(err)=>{
-                            if(err){
-                                return res.status(500).send({updated:true,artistBeforeUpdate,info:"No se pudo eliminar la imagen anterior"});                                        
-                            }
-                            res.status(200).send({updated:true,albumBeforeUpdate,info:"Se elimino la imagen anterior"}); 
-                        })
-                    }else{
-                        res.status(200).send({updated:true,albumBeforeUpdate,info:"No se encontro la imagen anterior"});                         
-                    }
-                })
+                if(albumBeforeUpdate.image=="default.png"){
+                  res.status(200).send({updated:true,image:req.file.filename,albumBeforeUpdate,message:"No se elimino la imagen anterior"});
+                }else{
+                  var pathOldImage="./uploads/albums/images/"+albumBeforeUpdate.image;
+                  fs.exists(pathOldImage,(exists)=>{
+                      if(exists){
+                          fs.unlink(pathOldImage,(err)=>{
+                              if(err){
+                                  return res.status(500).send({updated:true,image:req.file.filename,artistBeforeUpdate,message:"No se pudo eliminar la imagen anterior"});
+                              }
+                              res.status(200).send({updated:true,image:req.file.filename,albumBeforeUpdate,message:"Se elimino la imagen anterior"});
+                          })
+                      }else{
+                          res.status(200).send({updated:true,image:req.file.filename,albumBeforeUpdate,message:"No se encontro la imagen anterior"});
+                      }
+                  })
+                }
             }else{
-                res.status(200).send({updated:false});            
+                res.status(200).send({updated:false});
             }
         })
         .catch(error=>{
-            res.status(200).send({updated:false,error});        
+            res.status(200).send({updated:false,error});
         })
       }
 }
@@ -113,19 +117,19 @@ function deleteAlbum(req,res){
     .then(albumRemoved=>{
         if(albumRemoved){
             var pathImageRemoved="./uploads/albums/images/"+albumRemoved.image;
-            
+
             fs.unlink(pathImageRemoved, (err) => {
                 if (err){
                     return res.status(200).send({deleted:true,fileDeleted:false,error:err})
                 }
                 res.status(200).send({deleted:true,fileDeleted:true,album:albumRemoved})
-              });                         
+              });
         }else{
-            res.status(404).send({deleted:false,error:"No se ha encontrado el album"});                        
+            res.status(404).send({deleted:false,error:"No se ha encontrado el album"});
         }
     })
     .catch(error=>{
-        res.status(200).send({deleted:false,error});                    
+        res.status(200).send({deleted:false,error});
     })
 }
 module.exports={

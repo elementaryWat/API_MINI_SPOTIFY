@@ -53,6 +53,20 @@ function createArtist(req,res){
         console.log(err);
     })
 }
+function existeArtista(req,res){
+  var artistName=req.body.artistName;
+  Artists.find({name:artistName}).exec()
+  .then(artistsWithName=>{
+    if(artistsWithName.length>0){
+      res.status(200).send({founded:true});
+    }else{
+      res.status(200).send({founded:false});
+    }
+  })
+  .catch(error=>{
+    res.status(500).send({error,message:"Ocurrio un error al buscar el usuario"})
+  })
+}
 function updateArtist(req,res){
     var artistId=req.params.artistId;
     var update=req.body;
@@ -149,6 +163,7 @@ module.exports={
     getArtista,
     createArtist,
     getArtists,
+    existeArtista,
     updateArtist,
     updateImageArtist,
     getImageArtist,
