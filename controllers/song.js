@@ -40,6 +40,16 @@ function getSongs(req,res){
         res.status(500).send({founded:false,error})
     })
 }
+function getSongsCount(req, res){
+  var albumId=req.params.albumId;
+  Songs.count({album:albumId})
+  .then(count=>{
+    res.status(200).send({count});
+  })
+  .catch(error=>{
+    res.status(500).send({error});
+  })
+}
 function createSong(req,res){
     if(!req.file){
         return res.status(500).send({uploaded:false});
@@ -118,6 +128,7 @@ function deleteSong(req,res){
 module.exports={
     getSong,
     getSongs,
+    getSongsCount,
     updateSong,
     getAudioSong,
     createSong,
