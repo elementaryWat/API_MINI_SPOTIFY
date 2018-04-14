@@ -30,22 +30,37 @@ function createAlbum(req,res){
     })
 }
 function getAlbums(req,res){
-    var artistId=req.params.artistId;
-    var error;
-    if (artistId){
-        var albums=Albums.find({artist:artistId}).sort('year');
-        error="No hay albumes de este artista";
-    }else{
-        var albums=Albums.find().sort('title').populate({path:'artist'});
-        error="No hay ningun album";
-    }
-    albums.exec()
-    .then(albums=>{
-        res.status(200).send({albums});
-    })
-    .catch(error=>{
-        res.status(500).send({error});
-    })
+  var page=(req.params.page)?req.params.page:1;
+  var artistId=req.params.artistId;
+  var error;
+  if (artistId){
+      Albums.find({artist:artistId}).sort('year').exec()
+      .then(albums=>{
+          res.status(200).send({albums});
+      })
+      .catch(error=>{
+          res.status(500).send({error,message:"Ocurrio un error al buscar en la base de datos"});
+      })
+  }else{
+    var albumsPerPage=6;
+    message="No hay ningun album";
+    Albums.find({}).sort('title').populate({path:'artist'}).paginate(page,albumsPerPage,(err,albums,totalDocs)=>{
+        if (err){
+            res.status(500).send({err,message:"Ocurrio un error al buscar en la base de datos"})
+        }else{
+            var numbP=Math.trunc(totalDocs/albumsPerPage);
+            numbP=((totalDocs%albumsPerPage)>0)?(numbP+1):numbP;
+            if(albums){
+                return res.status(200).send({
+                    pages:numbP,
+                    albums
+                })
+            }else{
+                res.status(404).send({message})
+            }
+        }
+    });
+  }
 }
 function updateAlbum(req,res){
     var albumId=req.params.albumId;

@@ -30,11 +30,7 @@ function getSongs(req,res){
     }
     song.populate({path:'album'}).exec()
     .then(songs=>{
-        if(songs){
-            res.status(200).send({founded:true,songs})
-        }else{
-            res.status(404).send({founded:false,error:message})
-        }
+        res.status(200).send({songs});
     })
     .catch(error=>{
         res.status(500).send({founded:false,error})
