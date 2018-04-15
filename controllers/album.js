@@ -128,23 +128,56 @@ function getImageAlbum(req,res){
 }
 function deleteAlbum(req,res){
     var albumId=req.params.albumId;
-    Albums.findByIdAndRemove(albumId)
-    .then(albumRemoved=>{
-        if(albumRemoved){
-            var pathImageRemoved="./uploads/albums/images/"+albumRemoved.image;
+    Albums.findById(albumId).exec()
+    .then(album=>{
+        if(album){
+            album.remove()
+            .then(()=>{
+              var pathImageRemoved="./uploads/albums/images/"+album.image;
 
-            fs.unlink(pathImageRemoved, (err) => {
-                if (err){
-                    return res.status(200).send({deleted:true,fileDeleted:false,error:err})
-                }
-                res.status(200).send({deleted:true,fileDeleted:true,album:albumRemoved})
-              });
+              fs.unlink(pathImageRemoved, (err) => {
+                  if (err){
+                      return res.status(200).send({deleted:true,fileDeleted:false,error:err})
+                  }
+                  res.status(200).send({deleted:true,fileDeleted:true,album})
+                });
+            })
+            .catch(error=>{
+              res.status(500).send({deleted:false,message:"Ocurrio un error al eliminar el album"});
+            })
+
         }else{
-            res.status(404).send({deleted:false,error:"No se ha encontrado el album"});
+            res.status(404).send({deleted:false,message:"No se ha encontrado el album"});
         }
     })
     .catch(error=>{
         res.status(200).send({deleted:false,error});
+    })
+}
+function deleteAlbumCBDB(albumId){
+    Albums.findById(albumId).exec()
+    .then(album=>{
+        if(album){
+            album.remove()
+            .then(()=>{
+              var pathImageRemoved="./uploads/albums/images/"+album.image;
+              fs.unlink(pathImageRemoved, (err) => {
+                  if (err){
+                      return;
+                  }
+                  console.log("Se ha eliminado el album correctamente");
+                });
+            })
+            .catch(error=>{
+              console.log("Ocurrio un error al eliminar el album");
+            })
+
+        }else{
+          console.log("No se encontro el album");
+        }
+    })
+    .catch(error=>{
+        console.log("Ocurrio un error al buscar el album");
     })
 }
 module.exports={
@@ -154,5 +187,6 @@ module.exports={
     updateAlbum,
     updateImageAlbum,
     getImageAlbum,
-    deleteAlbum
+    deleteAlbum,
+    deleteAlbumCBDB
 }

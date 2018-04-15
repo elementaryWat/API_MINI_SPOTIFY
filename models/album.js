@@ -1,6 +1,8 @@
 const mongoose=require("mongoose");
 const Schema=mongoose.Schema;
-const songSchemma=require("./song");
+const songSchema=require("./song");
+const songController=require("../controllers/song");
+
 const albumSchema=new Schema({
     title:{
         type:String,
@@ -29,8 +31,14 @@ const albumSchema=new Schema({
     timestamps:true
 });
 albumSchema.pre("remove",function(next){
-    songSchemma.remove({album:this._id}).exec();
-    console.log("Se borraron todas las canciones del album");
+    songSchema.find({album:this._id}).exec()
+      .then(songsFromAlbums=>{
+        if(songsFromAlbums.length>0){
+          for(let song of songsFromAlbums){
+            songController.deleteSongCBDB(song._id);
+          }
+        }
+      })
     next();
 })
 module.exports=mongoose.model("Album",albumSchema);

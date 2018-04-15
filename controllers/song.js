@@ -121,6 +121,25 @@ function deleteSong(req,res){
         res.status(500).send({deleted:false,error})
     })
 }
+function deleteSongCBDB(songId){
+    Songs.findByIdAndRemove(songId)
+    .then(songRemoved=>{
+        if(songRemoved){
+            var pathSongRemoved="./uploads/songs/"+songRemoved.file;
+            fs.unlink(pathSongRemoved, (err) => {
+                if (err){
+                    return;
+                }
+              });
+            console.log("Se ha eliminado la cancion correctamente");
+        }else{
+          console.log("No se encontro la cancion");
+        }
+    })
+    .catch(error=>{
+      console.log("Ocurrio un error al borrar la cancion");
+    })
+}
 module.exports={
     getSong,
     getSongs,
@@ -128,5 +147,6 @@ module.exports={
     updateSong,
     getAudioSong,
     createSong,
-    deleteSong
+    deleteSong,
+    deleteSongCBDB
 }

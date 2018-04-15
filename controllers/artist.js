@@ -136,21 +136,27 @@ function getImageArtist(req,res){
 }
 function deleteArtist(req,res){
     var artistId=req.params.artistId;
-    Artists.findByIdAndRemove(artistId)
-    .then(artistDeleted=>{
-        if(artistDeleted){
-            if(artistDeleted.image=="default.png"){
-              res.status(200).send({deleted:true,fileDeleted:false,artist:artistDeleted})
-            }else{
-              var pathImageRemoved="./uploads/artists/images/"+artistDeleted.image;
+    Artists.findById(artistId)
+    .then(artist=>{
+        if(artist){
+            artist.remove()
+              .then(()=>{
+                if(artist.image=="default.png"){
+                  res.status(200).send({deleted:true,fileDeleted:false,artist})
+                }else{
+                  var pathImageRemoved="./uploads/artists/images/"+artist.image;
 
-              fs.unlink(pathImageRemoved, (err) => {
-                  if (err){
-                      return res.status(200).send({deleted:true,fileDeleted:false,message:"No se elimino la imagen del artista",error:err})
-                  }
-                  res.status(200).send({deleted:true,fileDeleted:true,artist:artistDeleted})
-                });
-            }
+                  fs.unlink(pathImageRemoved, (err) => {
+                      if (err){
+                          return res.status(200).send({deleted:true,fileDeleted:false,message:"No se elimino la imagen del artista",error:err})
+                      }
+                      res.status(200).send({deleted:true,fileDeleted:true,artist})
+                    });
+                }
+              })
+              .catch(error=>{
+                res.status(500).send({deleted:false,error,message:"Ocurrio un error al eliminar el artista"})
+              })
         }else{
             res.status(404).send({deleted:false,error,message:"No se pudo encontrar el artista"})
         }

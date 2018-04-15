@@ -1,6 +1,7 @@
 const mongoose=require("mongoose");
 const Schema=mongoose.Schema;
 const albumSchema=require("./album");
+const albumController=require("../controllers/album");
 
 const artistSchema=new Schema({
     name:{
@@ -20,8 +21,14 @@ const artistSchema=new Schema({
     timestamps:true
 });
 artistSchema.pre("remove",function(next){
-    albumSchema.remove({artist:this._id}).exec();
-    console.log("Se borraron todos los albumes del artista");
+    albumSchema.find({artist:this._id}).exec()
+      .then(albumsFromArtist=>{
+        if(albumsFromArtist.length>0){
+          for(let album of albumsFromArtist){
+            albumController.deleteAlbumCBDB(album._id);
+          }
+        }
+      })
     next();
 })
 module.exports=mongoose.model("Artist",artistSchema);
