@@ -28,7 +28,16 @@ function getSongs(req,res){
         song=Songs.find().sort('name');
         message="No hay canciones";
     }
-    song.populate({path:'album'}).exec()
+    song.populate({path:'album',populate:{path:'artist'}}).exec()
+    .then(songs=>{
+        res.status(200).send({songs});
+    })
+    .catch(error=>{
+        res.status(500).send({founded:false,error})
+    })
+}
+function getSongsForSearch(req,res){
+    Songs.find().sort('name').populate({path:'album', populate:{path:'artist'}}).exec()
     .then(songs=>{
         res.status(200).send({songs});
     })
@@ -143,6 +152,7 @@ function deleteSongCBDB(songId){
 module.exports={
     getSong,
     getSongs,
+    getSongsForSearch,
     getSongsCount,
     updateSong,
     getAudioSong,

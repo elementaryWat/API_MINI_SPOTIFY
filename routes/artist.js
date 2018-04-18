@@ -22,6 +22,7 @@ const mdAuth=require("../middlewares/authenticated");
 routerArtist.get("/artist/:artistId",mdAuth.ensureAuth,ArtistController.getArtista);
 routerArtist.post("/",mdAuth.ensureAuth,ArtistController.createArtist);
 routerArtist.post('/list/:page',mdAuth.ensureAuth,ArtistController.getArtists);
+routerArtist.get('/artistsForSearch',mdAuth.ensureAuth,ArtistController.getArtistsForSearch);
 routerArtist.post('/exist',mdAuth.ensureAuth,ArtistController.existeArtista);
 routerArtist.put('/:artistId',mdAuth.ensureAuth,ArtistController.updateArtist);
 routerArtist.delete('/:artistId',mdAuth.ensureAuth,ArtistController.deleteArtist);

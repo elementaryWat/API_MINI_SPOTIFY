@@ -23,6 +23,7 @@ albumRouter.get("/album/:albumId",md_auth.ensureAuth,albumController.getAlbum);
 albumRouter.post("/",md_auth.ensureAuth,albumController.createAlbum);
 albumRouter.get("/artist/:artistId",md_auth.ensureAuth,albumController.getAlbums);
 albumRouter.get("/list/:page",md_auth.ensureAuth,albumController.getAlbums);
+albumRouter.get("/albumsForSearch",md_auth.ensureAuth,albumController.getAlbumsForSearch);
 albumRouter.put("/:albumId",md_auth.ensureAuth,albumController.updateAlbum);
 albumRouter.delete("/:albumId",md_auth.ensureAuth,albumController.deleteAlbum);
 albumRouter.post("/uploadAlbumImage/:albumId",[upload.single("avatar"),md_auth.ensureAuth],albumController.updateImageAlbum);

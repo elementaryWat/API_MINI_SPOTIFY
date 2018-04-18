@@ -62,6 +62,16 @@ function getAlbums(req,res){
     });
   }
 }
+function getAlbumsForSearch(req,res){
+  //Solo devuelve todos slos albums y en el cliente se implementara la busqueda
+  Albums.find().populate({path:'artist'}).exec()
+  .then(albums=>{
+      res.status(200).send({albums});
+  })
+  .catch(error=>{
+      res.status(500).send({error,message:"Ocurrio un error al buscar en la base de datos"});
+  })
+}
 function updateAlbum(req,res){
     var albumId=req.params.albumId;
     var update=req.body;
@@ -184,6 +194,7 @@ module.exports={
     getAlbum,
     createAlbum,
     getAlbums,
+    getAlbumsForSearch,
     updateAlbum,
     updateImageAlbum,
     getImageAlbum,

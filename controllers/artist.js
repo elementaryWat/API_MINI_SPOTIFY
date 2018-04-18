@@ -39,6 +39,15 @@ function getArtists(req,res){
         }
     });
 }
+function getArtistsForSearch(req,res){
+    Artists.find().exec().then(artists=> {
+      res.status(200).send({artists});
+    })
+    .catch(error=>{
+      res.status(500).send({error, message:"Ocurrio un error al buscar el artista"});
+
+    })
+}
 function createArtist(req,res){
     Artists.create(req.body)
     .then(newArtist=>{
@@ -169,6 +178,7 @@ module.exports={
     getArtista,
     createArtist,
     getArtists,
+    getArtistsForSearch,
     existeArtista,
     updateArtist,
     updateImageArtist,
